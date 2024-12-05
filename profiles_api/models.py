@@ -21,17 +21,18 @@ class UserProfileManager(BaseUserManager):
         """Create and save a new superuser with given details"""
         user = self.create_user(email, name, password)
         user.is_superuser = True
-        user.is_stuff = True
-        user.save(saving=self._db)
+        user.is_staff = True
+        user.save(using=self._db)
         return user
 
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for users in the system """
-    email = models.EmailField(max_length=255,unique=True)
+    email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    is_stuff = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    objects = UserProfileManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 

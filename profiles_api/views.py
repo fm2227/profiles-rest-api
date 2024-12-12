@@ -3,6 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from profiles_api import serializers
 from rest_framework import viewsets
+from profiles_api import models
+from rest_framework.authentication import TokenAuthentication
+from profiles_api import permissions
 
 
 class HelloApiView(APIView):
@@ -46,7 +49,7 @@ class HelloApiView(APIView):
 
 class HelloViewSet(viewsets.ViewSet):
     """Test API Viewset"""
-    serialiver_class = serializers.HelloSerializer
+    serializer_class = serializers.HelloSerializer
 
     def list(self, request):
         """Create a Hello message"""
@@ -59,7 +62,7 @@ class HelloViewSet(viewsets.ViewSet):
 
     def create(self, request):
         """Create a new hello message"""
-        serializer = self.serialiver_class(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             name = serializer.validated_data.get('name')
             message = f'Hello {name}!'
@@ -69,7 +72,7 @@ class HelloViewSet(viewsets.ViewSet):
                      status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
-        """Handle getting ad object by it's ID"""
+        """Handle getting an object by it's ID"""
         return Response({'http_method': 'GET'})
 
     def update(self, request, pk=None):
@@ -83,3 +86,11 @@ class HelloViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         """Handle removing an object"""
         return Response({'http_method': 'DELETE'})
+
+
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """Handle creating and updating profiles"""
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnProfile,)
